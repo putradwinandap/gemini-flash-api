@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 import textRoutes from './routes/textRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
@@ -9,6 +11,9 @@ import { AppError } from './utils/AppError.js';
 const app = express();
 
 app.use(express.json());
+
+// API Documentation (Swagger)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/', textRoutes);
