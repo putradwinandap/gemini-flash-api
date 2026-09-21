@@ -6,6 +6,7 @@
 - **AI SDK:** `@google/genai`
 - **Validation:** Zod
 - **File Upload:** Multer
+- **API Documentation:** Swagger UI (`swagger-ui-express`)
 - **Environment:** dotenv
 
 ## 2. Architecture & Directory Structure
@@ -71,6 +72,7 @@ Proyek akan menggunakan arsitektur berbasis Service (*Controller-Service pattern
 - **Living Documentation:** AI **WAJIB** memperbarui file `gemini.md` ini secara otomatis setiap kali ada keputusan arsitektural baru, tambahan *library* penting, atau perubahan *guidelines*.
 
 ## 8. Implemented Endpoints
+- `GET /api-docs` - Interactive Swagger API documentation UI.
 - `POST /generate-text` - Generates text response from user prompt using Gemini AI.
 - `POST /generate-from-image` - Accepts single image file (`image`) and optional `prompt`, returns generated text.
 - `POST /generate-from-document` - Accepts document file (`document` or `file`: PDF, TXT, DOCX, etc.) and optional `prompt`, converts document to Base64, calls Gemini AI multimodal `generateContent()`, cleans up temporary file, and returns summary or analysis text in JSON.
