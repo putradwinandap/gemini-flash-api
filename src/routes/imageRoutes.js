@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import { handleGenerateFromImage } from '../controllers/imageController.js';
+import { uploadImage } from '../middlewares/uploadMiddleware.js';
+import { validateRequest } from '../middlewares/validateRequest.js';
+import { generateFromImageSchema } from '../schemas/imageSchema.js';
+
+const router = Router();
+
+router.post(
+  '/generate-from-image',
+  uploadImage.single('image'),
+  validateRequest(generateFromImageSchema),
+  handleGenerateFromImage
+);
+
+export default router;
