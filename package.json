@@ -4,10 +4,23 @@
   "description": "Express.js API integrating Gemini AI",
   "main": "src/index.js",
   "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./services/text": "./src/services/textService.js",
+    "./services/image": "./src/services/imageService.js",
+    "./services/document": "./src/services/documentService.js",
+    "./services/audio": "./src/services/audioService.js",
+    "./app": "./src/app.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "GEMINI.md"
+  ],
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --input-type=module -e \"import * as sdk from './src/index.js'; console.log('SDK exports test passed:', Object.keys(sdk));\""
   },
   "keywords": [],
   "author": "",

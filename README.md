@@ -79,18 +79,45 @@ PORT=3000
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-### 3. Run the Server
-
-- **Development mode:**
-  ```bash
-  npm run dev
-  ```
-- **Production mode:**
-  ```bash
-  npm start
-  ```
-
 Server will start on `http://localhost:3000`.
+
+---
+
+## 📦 Using as NPM Dependency in Next.js / Express Apps
+
+You can also install `gemini-flash-api` directly into your Next.js or Node.js project as a dependency:
+
+### 1. Install
+```bash
+npm install git+https://github.com/putradwinandap/gemini-flash-api.git
+```
+
+### 2. Usage in Next.js Route Handler (`app/api/gemini/route.ts` or `.js`)
+
+```javascript
+import { generateText, generateFromImage } from 'gemini-flash-api';
+
+export async function POST(req) {
+  const { prompt } = await req.json();
+  const text = await generateText(prompt);
+  
+  return Response.json({ success: true, text });
+}
+```
+
+### 3. Usage in an existing Express App
+
+```javascript
+import express from 'express';
+import { generateText } from 'gemini-flash-api';
+
+const app = express();
+
+app.post('/api/ai-text', async (req, res) => {
+  const text = await generateText(req.body.prompt);
+  res.json({ text });
+});
+```
 
 ---
 

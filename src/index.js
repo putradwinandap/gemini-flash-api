@@ -1,8 +1,25 @@
 import 'dotenv/config';
 import app from './app.js';
+import * as textService from './services/textService.js';
+import * as imageService from './services/imageService.js';
+import * as documentService from './services/documentService.js';
+import * as audioService from './services/audioService.js';
+import { ai, GEMINI_MODEL } from './config/gemini.js';
+import { AppError } from './utils/AppError.js';
 
-const PORT = process.env.PORT || 3000;
+export {
+  app,
+  ai,
+  GEMINI_MODEL,
+  AppError,
+  textService,
+  imageService,
+  documentService,
+  audioService,
+};
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+export { generateText } from './services/textService.js';
+export { generateFromImage } from './services/imageService.js';
+export { generateFromDocument } from './services/documentService.js';
+export { generateFromAudio } from './services/audioService.js';
+

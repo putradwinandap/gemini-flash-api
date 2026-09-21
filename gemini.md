@@ -78,4 +78,9 @@ Proyek akan menggunakan arsitektur berbasis Service (*Controller-Service pattern
 - `POST /generate-from-document` - Accepts document file (`document` or `file`: PDF, TXT, DOCX, etc.) and optional `prompt`, converts document to Base64, calls Gemini AI multimodal `generateContent()`, cleans up temporary file, and returns summary or analysis text in JSON.
 - `POST /generate-from-audio` - Accepts audio file (`audio` or `file`: MP3, WAV, OGG, FLAC, AAC, M4A, etc.) and optional `prompt`, converts audio to Base64, calls Gemini AI multimodal `generateContent()`, cleans up temporary file, and returns transcription or audio analysis text in JSON.
 
+## 9. Dual-Purpose Packaging Architecture
+- **SDK Exports Entrypoint:** `src/index.js` (Exporting Services: `generateText`, `generateFromImage`, `generateFromDocument`, `generateFromAudio`, Express `app`, `ai`, and `AppError`).
+- **Standalone Server Runner:** `src/server.js` (Invokes `app.listen` on `PORT`).
+- **NPM Package Compatibility:** Supported via `"exports"` and `"files"` field in `package.json`, allowing direct import into Next.js Route Handlers (`app/api/...`) or existing Node.js projects without running an external HTTP server.
+
 
