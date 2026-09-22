@@ -4,6 +4,8 @@ import { cleanupUploadedFiles } from '../utils/uploadCleanup.js';
 export const errorHandler = async (err, req, res, _next) => {
   await cleanupUploadedFiles(req);
 
+  if (req.aborted || res.destroyed || req.clientAbortSignal?.aborted) return undefined;
+
   const isMulterError = err.name === 'MulterError';
   const statusCode = isMulterError ? 400 : err.statusCode || 500;
   const code = isMulterError ? 'VALIDATION_ERROR' : err.code || 'INTERNAL_ERROR';

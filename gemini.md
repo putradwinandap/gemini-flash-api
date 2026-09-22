@@ -111,6 +111,15 @@ Proyek akan menggunakan arsitektur berbasis Service (_Controller-Service pattern
 - **HTTP endpoint tidak terpengaruh** — `config` hanya tersedia untuk pengguna SDK, tidak diekspos ke REST API.
 - **Backward-compatible** — controller yang tidak meneruskan `config` akan otomatis menggunakan default dari environment variable.
 
+## 12. Cancellation, Timeout, dan Upload Security
+
+- `req.clientAbortSignal` hanya merepresentasikan client disconnect; jangan gunakan signal timeout sebagai indikator disconnect.
+- Default timeout dikontrol oleh `GEMINI_TIMEOUT_MS` (default 60000 ms) dan dapat dioverride oleh service caller melalui `config.timeoutMs`.
+- Client disconnect diproses silent; timeout internal menghasilkan HTTP 504 dengan code `TIMEOUT`.
+- `config.timeoutMs` dan `config.signal` hanya tersedia untuk pemanggil service/package, bukan request body REST.
+- File upload wajib melewati validasi content signature sebelum dikirim ke Gemini; MIME type dan filename dari client dianggap tidak tepercaya.
+- Temporary upload files harus selalu dibersihkan pada success, error, timeout, dan cancellation.
+
 ## 11. Automated Quality Gate
 
 - Quality gate lokal wajib dijalankan dengan `npm run verify` sebelum push.

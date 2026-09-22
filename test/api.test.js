@@ -13,6 +13,8 @@ import { AppError } from '../src/utils/AppError.js';
 import { extractOutputText } from '../src/utils/interactionHelper.js';
 import { buildGenerationConfig } from '../src/utils/generationConfig.js';
 import { cleanupUploadedFiles } from '../src/utils/uploadCleanup.js';
+import { createRequestContext } from '../src/utils/requestContext.js';
+import { hasValidFileSignature } from '../src/utils/fileSignature.js';
 
 const createUploadApp = (uploadHandler) => {
   const app = express();
@@ -89,6 +91,39 @@ test('strict body validation rejects unknown fields without rejecting query or p
     params: {},
   });
   assert.equal(parsed.body.prompt, 'hello');
+  await assert.rejects(
+    generateTextSchema.parseAsync({
+      body: { prompt: 'hello', timeoutMs: 1000 },
+      query: {},
+      params: {},
+    })
+  );
+});
+
+test('request context aborts on timeout and rejects invalid timeout values', async () => {
+  const context = createRequestContext({ timeoutMs: 15 });
+  await new Promise((resolve) => globalThis.setTimeout(resolve, 30));
+  assert.equal(context.signal.aborted, true);
+  assert.equal(context.timedOut, true);
+  context.cleanup();
+
+  assert.throws(
+    () => createRequestContext({ timeoutMs: 0 }),
+    (error) => error.code === 'VALIDATION_ERROR' && error.statusCode === 400
+  );
+});
+
+test('file signature validation rejects spoofed media and accepts matching signatures', async () => {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'gemini-signature-test-'));
+  const image = path.join(tempDir, 'image.bin');
+  const spoofed = path.join(tempDir, 'spoofed.jpg');
+
+  await fs.writeFile(image, Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  await fs.writeFile(spoofed, 'not an image');
+
+  assert.equal(await hasValidFileSignature({ path: image }, 'image'), true);
+  assert.equal(await hasValidFileSignature({ path: spoofed }, 'image'), false);
+  await fs.rm(tempDir, { recursive: true, force: true });
 });
 
 test('generation config and output extraction support memory and fallback output', () => {

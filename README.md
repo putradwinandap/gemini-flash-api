@@ -12,6 +12,8 @@ An Express.js (v5) RESTful API powered by Google's `@google/genai` SDK, designed
 - **Audio Processing & Transcription:** Analyze and transcribe audio files (MP3, WAV, OGG, FLAC, AAC, M4A) (`POST /generate-from-audio`).
 - **Interactive Swagger Documentation:** Built-in Swagger UI available at `/api-docs`.
 - **Robust Architecture:** Clean Controller-Service architecture with Zod schema validations and centralized error handling.
+- **Cancellation & Timeout:** Client disconnects abort in-flight Gemini requests; service callers can override the server timeout.
+- **Upload Validation:** Uploaded media is checked using content signatures in addition to client-provided MIME and filename values.
 
 ---
 
@@ -78,6 +80,7 @@ Edit `.env`:
 ```env
 PORT=3000
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_TIMEOUT_MS=60000
 ```
 
 Server will start on `http://localhost:3000`.
@@ -158,6 +161,19 @@ Interactive Swagger API documentation is available at:
 - **Response `data`:** `{ "text": "...", "interactionId": "int_xxx" }` (`interactionId` = `null` jika memori mati)
 - **Memory:** `store` hanya via ENV `GEMINI_STORE` atau code config `{ store }`. Tidak bisa via endpoint.
 
+### Cancellation and timeout
+
+Client disconnects are handled silently and abort the in-flight Gemini request. Service/package callers can configure an optional timeout without exposing it through REST request bodies:
+
+```javascript
+const result = await generateText('Explain quantum computing', {
+  timeoutMs: 30000,
+  signal: abortController.signal,
+});
+```
+
+The default timeout is configured with `GEMINI_TIMEOUT_MS` and defaults to 60 seconds. If the server-side timeout is reached while the client is still connected, the API returns HTTP `504` with error code `TIMEOUT`.
+
 ### 2. Image Analysis
 
 - **Endpoint:** `POST /generate-from-image`
@@ -205,7 +221,7 @@ Interactive Swagger API documentation is available at:
 {
   "success": false,
   "error": {
-    "code": "BAD_REQUEST | NOT_FOUND | INTERNAL_ERROR | VALIDATION_ERROR",
+    "code": "BAD_REQUEST | NOT_FOUND | TIMEOUT | INTERNAL_ERROR | VALIDATION_ERROR",
     "message": "Detailed error message"
   }
 }

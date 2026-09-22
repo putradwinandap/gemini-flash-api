@@ -2,6 +2,7 @@ import * as imageService from '../services/imageService.js';
 import { sendSuccess } from '../utils/responseHelper.js';
 import { AppError } from '../utils/AppError.js';
 import { cleanupUploadedFiles } from '../utils/uploadCleanup.js';
+import { isAbortError } from '../utils/abort.js';
 
 export const handleGenerateFromImage = async (req, res, next) => {
   try {
@@ -16,11 +17,12 @@ export const handleGenerateFromImage = async (req, res, next) => {
         mimeType: req.file.mimetype,
         prompt,
       },
-      { previousInteractionId }
+      { previousInteractionId, signal: req.clientAbortSignal }
     );
 
     return sendSuccess(res, 200, { text, interactionId }, 'Text generated from image successfully');
   } catch (error) {
+    if (req.clientAbortSignal?.aborted || isAbortError(error)) return undefined;
     return next(error);
   } finally {
     await cleanupUploadedFiles(req);

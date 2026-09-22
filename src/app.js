@@ -7,10 +7,12 @@ import documentRoutes from './routes/documentRoutes.js';
 import audioRoutes from './routes/audioRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { AppError } from './utils/AppError.js';
+import { requestAbort } from './middlewares/requestAbort.js';
 
 const app = express();
 
 app.use(express.json());
+app.use(requestAbort);
 
 // API Documentation (Swagger)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

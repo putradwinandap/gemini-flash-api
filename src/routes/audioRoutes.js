@@ -4,6 +4,7 @@ import { uploadAudio } from '../middlewares/uploadMiddleware.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { generateFromAudioSchema } from '../schemas/audioSchema.js';
 import { AppError } from '../utils/AppError.js';
+import { validateFileSignature } from '../middlewares/validateFileSignature.js';
 
 const router = Router();
 
@@ -28,6 +29,7 @@ export const audioUploadHandler = (req, res, next) => {
 router.post(
   '/generate-from-audio',
   audioUploadHandler,
+  validateFileSignature('audio'),
   validateRequest(generateFromAudioSchema),
   handleGenerateFromAudio
 );

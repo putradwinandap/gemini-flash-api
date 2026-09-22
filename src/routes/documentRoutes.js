@@ -4,6 +4,7 @@ import { uploadDocument } from '../middlewares/uploadMiddleware.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { generateFromDocumentSchema } from '../schemas/documentSchema.js';
 import { AppError } from '../utils/AppError.js';
+import { validateFileSignature } from '../middlewares/validateFileSignature.js';
 
 const router = Router();
 
@@ -28,6 +29,7 @@ export const documentUploadHandler = (req, res, next) => {
 router.post(
   '/generate-from-document',
   documentUploadHandler,
+  validateFileSignature('document'),
   validateRequest(generateFromDocumentSchema),
   handleGenerateFromDocument
 );

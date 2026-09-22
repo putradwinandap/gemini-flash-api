@@ -3,6 +3,8 @@ import { ai } from '../config/gemini.js';
 import { AppError } from './AppError.js';
 import { buildGenerationConfig } from './generationConfig.js';
 import { extractOutputText, validateMemoryOptions } from './interactionHelper.js';
+import { isAbortError } from './abort.js';
+import { createRequestContext } from './requestContext.js';
 
 export const generateFromMedia = async ({
   filePath,
@@ -13,8 +15,14 @@ export const generateFromMedia = async ({
   errorContext,
   config = {},
 }) => {
+  const requestContext = createRequestContext(config);
   try {
-    const fileBuffer = await fs.readFile(filePath);
+    if (requestContext.signal.aborted) {
+      const error = new Error('The request was aborted');
+      error.name = 'AbortError';
+      throw error;
+    }
+    const fileBuffer = await fs.readFile(filePath, { signal: requestContext.signal });
     const interactionPayload = buildGenerationConfig(config);
     validateMemoryOptions(interactionPayload);
 
@@ -29,6 +37,7 @@ export const generateFromMedia = async ({
           mime_type: mimeType,
         },
       ],
+      config: { abortSignal: requestContext.signal },
     });
 
     return {
@@ -36,9 +45,14 @@ export const generateFromMedia = async ({
       interactionId: interaction.id ?? null,
     };
   } catch (error) {
-    if (error instanceof AppError) throw error;
+    if (requestContext.timedOut && isAbortError(error)) {
+      throw new AppError('The request timed out', 504, 'TIMEOUT');
+    }
+    if (error instanceof AppError || isAbortError(error)) throw error;
 
     console.error(`${errorContext} failed:`, error);
     throw new AppError(`Failed to process ${errorContext}.`, 500, 'GEMINI_ERROR');
+  } finally {
+    requestContext.cleanup();
   }
 };
