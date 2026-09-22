@@ -10,10 +10,9 @@ export const validateRequest = (schema) => {
       });
 
       if (parsed.body) req.body = parsed.body;
-      if (parsed.query) req.query = parsed.query;
-      if (parsed.params) req.params = parsed.params;
+      if (parsed.params) Object.assign(req.params, parsed.params);
 
-      next();
+      return next();
     } catch (error) {
       if (error.name === 'ZodError' || error.issues) {
         const message = error.issues
@@ -21,7 +20,7 @@ export const validateRequest = (schema) => {
           : error.message;
         return next(new AppError(message, 400, 'VALIDATION_ERROR'));
       }
-      next(error);
+      return next(error);
     }
   };
 };
