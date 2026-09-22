@@ -30,13 +30,18 @@ export const swaggerSpec = {
                     type: 'string',
                     example: 'Explain quantum computing in simple terms.',
                   },
+                  previousInteractionId: {
+                    type: 'string',
+                    description:
+                      'Optional chained memory pointer from a previous response interactionId.',
+                  },
                 },
               },
             },
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Successful text generation',
             content: {
               'application/json': {
@@ -49,6 +54,13 @@ export const swaggerSpec = {
                       type: 'object',
                       properties: {
                         text: { type: 'string', example: 'Quantum computing is...' },
+                        interactionId: {
+                          type: 'string',
+                          nullable: true,
+                          example: 'int_abc123',
+                          description:
+                            'Stored interaction id for chaining via previousInteractionId.',
+                        },
                       },
                     },
                   },
@@ -56,10 +68,10 @@ export const swaggerSpec = {
               },
             },
           },
-          '400': {
+          400: {
             description: 'Validation error or bad request',
           },
-          '500': {
+          500: {
             description: 'Internal server error',
           },
         },
@@ -88,13 +100,18 @@ export const swaggerSpec = {
                     type: 'string',
                     example: 'Describe what you see in this image in detail.',
                   },
+                  previousInteractionId: {
+                    type: 'string',
+                    description:
+                      'Optional chained memory pointer from a previous response interactionId.',
+                  },
                 },
               },
             },
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Successful image analysis',
             content: {
               'application/json': {
@@ -107,6 +124,11 @@ export const swaggerSpec = {
                       type: 'object',
                       properties: {
                         text: { type: 'string', example: 'The image depicts...' },
+                        interactionId: {
+                          type: 'string',
+                          nullable: true,
+                          example: 'int_abc123',
+                        },
                       },
                     },
                   },
@@ -114,10 +136,10 @@ export const swaggerSpec = {
               },
             },
           },
-          '400': {
+          400: {
             description: 'Validation or file upload error',
           },
-          '500': {
+          500: {
             description: 'Internal server error',
           },
         },
@@ -146,13 +168,18 @@ export const swaggerSpec = {
                     type: 'string',
                     example: 'Summarize the key findings in this document.',
                   },
+                  previousInteractionId: {
+                    type: 'string',
+                    description:
+                      'Optional chained memory pointer from a previous response interactionId.',
+                  },
                 },
               },
             },
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Successful document analysis',
             content: {
               'application/json': {
@@ -168,6 +195,11 @@ export const swaggerSpec = {
                       type: 'object',
                       properties: {
                         text: { type: 'string', example: 'Summary of the document...' },
+                        interactionId: {
+                          type: 'string',
+                          nullable: true,
+                          example: 'int_abc123',
+                        },
                       },
                     },
                   },
@@ -175,10 +207,10 @@ export const swaggerSpec = {
               },
             },
           },
-          '400': {
+          400: {
             description: 'Validation or file upload error',
           },
-          '500': {
+          500: {
             description: 'Internal server error',
           },
         },
@@ -207,13 +239,18 @@ export const swaggerSpec = {
                     type: 'string',
                     example: 'Transcribe this audio recording verbatim.',
                   },
+                  previousInteractionId: {
+                    type: 'string',
+                    description:
+                      'Optional chained memory pointer from a previous response interactionId.',
+                  },
                 },
               },
             },
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Successful audio processing',
             content: {
               'application/json': {
@@ -226,6 +263,11 @@ export const swaggerSpec = {
                       type: 'object',
                       properties: {
                         text: { type: 'string', example: 'Audio transcription content...' },
+                        interactionId: {
+                          type: 'string',
+                          nullable: true,
+                          example: 'int_abc123',
+                        },
                       },
                     },
                   },
@@ -233,10 +275,10 @@ export const swaggerSpec = {
               },
             },
           },
-          '400': {
+          400: {
             description: 'Validation or file upload error',
           },
-          '500': {
+          500: {
             description: 'Internal server error',
           },
         },

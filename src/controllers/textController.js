@@ -3,16 +3,13 @@ import { sendSuccess } from '../utils/responseHelper.js';
 
 export const handleGenerateText = async (req, res, next) => {
   try {
-    const { prompt } = req.body;
-    const generatedText = await textService.generateText(prompt);
+    const { prompt, previousInteractionId } = req.body;
+    const { text, interactionId } = await textService.generateText(prompt, {
+      previousInteractionId,
+    });
 
-    return sendSuccess(
-      res,
-      200,
-      { text: generatedText },
-      'Text generated successfully'
-    );
+    return sendSuccess(res, 200, { text, interactionId }, 'Text generated successfully');
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };

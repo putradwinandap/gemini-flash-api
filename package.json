@@ -1,6 +1,6 @@
 {
   "name": "gemini-flash-api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Express.js API integrating Gemini AI",
   "main": "src/index.js",
   "type": "module",
@@ -20,7 +20,14 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --input-type=module -e \"import * as sdk from './src/index.js'; console.log('SDK exports test passed:', Object.keys(sdk));\""
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:write": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
+    "verify": "npm run format:check && npm run lint && npm test && npm audit --audit-level=high",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -32,5 +39,25 @@
     "multer": "^2.4.0",
     "swagger-ui-express": "^5.0.1",
     "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
+    "prettier": "^3.9.8",
+    "supertest": "^7.2.2"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.json": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
   }
 }
