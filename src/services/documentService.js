@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
-import { ai, GEMINI_MODEL } from '../config/gemini.js';
+import { ai } from '../config/gemini.js';
 import { AppError } from '../utils/AppError.js';
+import { buildGenerationConfig } from '../utils/generationConfig.js';
 
-export const generateFromDocument = async ({ documentPath, mimeType, prompt }) => {
+export const generateFromDocument = async ({ documentPath, mimeType, prompt }, config = {}) => {
   try {
     const fileBuffer = await fs.readFile(documentPath);
     const base64Data = fileBuffer.toString('base64');
@@ -14,14 +15,16 @@ export const generateFromDocument = async ({ documentPath, mimeType, prompt }) =
       },
     };
 
-    const promptText = prompt && prompt.trim() !== '' 
-      ? prompt 
-      : 'Tolong berikan ringkasan dan analisis lengkap dari dokumen ini.';
+    const promptText =
+      prompt && prompt.trim() !== ''
+        ? prompt
+        : 'Tolong berikan ringkasan dan analisis lengkap dari dokumen ini.';
 
     const contents = [promptText, documentPart];
+    const generationPayload = buildGenerationConfig(config);
 
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      ...generationPayload,
       contents,
     });
 

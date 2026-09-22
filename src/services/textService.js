@@ -1,10 +1,13 @@
-import { ai, GEMINI_MODEL } from '../config/gemini.js';
+import { ai } from '../config/gemini.js';
 import { AppError } from '../utils/AppError.js';
+import { buildGenerationConfig } from '../utils/generationConfig.js';
 
-export const generateText = async (prompt) => {
+export const generateText = async (prompt, config = {}) => {
   try {
+    const generationPayload = buildGenerationConfig(config);
+
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      ...generationPayload,
       contents: prompt,
     });
 

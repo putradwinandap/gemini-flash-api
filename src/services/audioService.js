@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
-import { ai, GEMINI_MODEL } from '../config/gemini.js';
+import { ai } from '../config/gemini.js';
 import { AppError } from '../utils/AppError.js';
+import { buildGenerationConfig } from '../utils/generationConfig.js';
 
-export const generateFromAudio = async ({ audioPath, mimeType, prompt }) => {
+export const generateFromAudio = async ({ audioPath, mimeType, prompt }, config = {}) => {
   try {
     const fileBuffer = await fs.readFile(audioPath);
     const base64Data = fileBuffer.toString('base64');
@@ -20,9 +21,10 @@ export const generateFromAudio = async ({ audioPath, mimeType, prompt }) => {
         : 'Tolong berikan transkripsi dan analisis lengkap dari file audio ini.';
 
     const contents = [promptText, audioPart];
+    const generationPayload = buildGenerationConfig(config);
 
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      ...generationPayload,
       contents,
     });
 

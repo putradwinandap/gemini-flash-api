@@ -83,4 +83,16 @@ Proyek akan menggunakan arsitektur berbasis Service (*Controller-Service pattern
 - **Standalone Server Runner:** `src/server.js` (Invokes `app.listen` on `PORT`).
 - **NPM Package Compatibility:** Supported via `"exports"` and `"files"` field in `package.json`, allowing direct import into Next.js Route Handlers (`app/api/...`) or existing Node.js projects without running an external HTTP server.
 
-
+## 10. Configurable Generation Options (SDK)
+- Semua fungsi service menerima parameter `config` opsional sebagai argumen kedua: `generateText(prompt, config)`, `generateFromImage({ ... }, config)`, dll.
+- Logika merge config dipusatkan di `src/utils/generationConfig.js` (`buildGenerationConfig(config)`).
+- **Opsi yang didukung** (semua opsional):
+  - `model` — override nama model Gemini per-call.
+  - `temperature` — tingkat kreativitas (0.0 – 2.0).
+  - `maxOutputTokens` — batas token output.
+  - `topP` — nucleus sampling (0.0 – 1.0).
+  - `topK` — top-K sampling.
+  - `systemInstruction` — instruksi sistem yang diprepend ke setiap request.
+  - `stopSequences` — array string sebagai stop sequence.
+- **HTTP endpoint tidak terpengaruh** — `config` hanya tersedia untuk pengguna SDK, tidak diekspos ke REST API.
+- **Backward-compatible** — controller yang tidak meneruskan `config` akan otomatis menggunakan default dari environment variable.

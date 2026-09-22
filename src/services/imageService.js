@@ -1,8 +1,9 @@
 import fs from 'fs/promises';
-import { ai, GEMINI_MODEL } from '../config/gemini.js';
+import { ai } from '../config/gemini.js';
 import { AppError } from '../utils/AppError.js';
+import { buildGenerationConfig } from '../utils/generationConfig.js';
 
-export const generateFromImage = async ({ imagePath, mimeType, prompt }) => {
+export const generateFromImage = async ({ imagePath, mimeType, prompt }, config = {}) => {
   try {
     const fileBuffer = await fs.readFile(imagePath);
     const base64Data = fileBuffer.toString('base64');
@@ -15,9 +16,10 @@ export const generateFromImage = async ({ imagePath, mimeType, prompt }) => {
     };
 
     const contents = prompt ? [prompt, imagePart] : [imagePart];
+    const generationPayload = buildGenerationConfig(config);
 
     const response = await ai.models.generateContent({
-      model: GEMINI_MODEL,
+      ...generationPayload,
       contents,
     });
 
