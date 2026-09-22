@@ -24,6 +24,7 @@ An Express.js (v5) RESTful API powered by Google's `@google/genai` SDK, designed
 - **File Uploads:** Multer
 - **API Documentation:** Swagger UI (`swagger-ui-express`)
 - **Environment Management:** `dotenv`
+- **Quality & Automation:** ESLint, Prettier, Node test runner, Supertest, Husky, GitHub Actions
 
 ---
 
@@ -81,6 +82,18 @@ GEMINI_API_KEY=your_gemini_api_key_here
 
 Server will start on `http://localhost:3000`.
 
+### 3. Quality checks
+
+Run the complete local quality gate:
+
+```bash
+npm run verify
+```
+
+Individual commands are available through `npm run lint`, `npm run format:check`, and
+`npm test`. Tests use mocked boundaries and do not call Gemini or require a Gemini API key.
+Local pre-commit and pre-push hooks are installed automatically by `npm install`.
+
 ---
 
 ## 📦 Using as NPM Dependency in Next.js / Express Apps
@@ -88,6 +101,7 @@ Server will start on `http://localhost:3000`.
 You can also install `gemini-flash-api` directly into your Next.js or Node.js project as a dependency:
 
 ### 1. Install
+
 ```bash
 npm install git+https://github.com/putradwinandap/gemini-flash-api.git
 ```
@@ -98,14 +112,14 @@ npm install git+https://github.com/putradwinandap/gemini-flash-api.git
 import { generateText, generateFromImage } from 'gemini-flash-api';
 
 export async function POST(req) {
-  const { prompt } = await req.json();
-  const text = await generateText(prompt);
-  
-  return Response.json({ success: true, text });
+  const { prompt, previousInteractionId } = await req.json();
+  const { text, interactionId } = await generateText(prompt, { previousInteractionId });
+
+  return Response.json({ success: true, text, interactionId });
 }
 ```
 
-### 3. Usage in an existing Express App
+### 4. Usage in an existing Express App
 
 ```javascript
 import express from 'express';
@@ -114,8 +128,8 @@ import { generateText } from 'gemini-flash-api';
 const app = express();
 
 app.post('/api/ai-text', async (req, res) => {
-  const text = await generateText(req.body.prompt);
-  res.json({ text });
+  const { text, interactionId } = await generateText(req.body.prompt);
+  res.json({ text, interactionId });
 });
 ```
 
@@ -131,52 +145,62 @@ Interactive Swagger API documentation is available at:
 ## 📡 API Endpoints Summary
 
 ### 1. Text Generation
+
 - **Endpoint:** `POST /generate-text`
 - **Content-Type:** `application/json`
 - **Body:**
   ```json
   {
-    "prompt": "Explain quantum computing in simple terms."
+    "prompt": "Explain quantum computing in simple terms.",
+    "previousInteractionId": "int_abc123 (optional, untuk chat bersambung)"
   }
   ```
+- **Response `data`:** `{ "text": "...", "interactionId": "int_xxx" }` (`interactionId` = `null` jika memori mati)
+- **Memory:** `store` hanya via ENV `GEMINI_STORE` atau code config `{ store }`. Tidak bisa via endpoint.
 
 ### 2. Image Analysis
+
 - **Endpoint:** `POST /generate-from-image`
 - **Content-Type:** `multipart/form-data`
 - **Form Data:**
-  - `image`: *(File)* Image file
-  - `prompt`: *(Text, optional)* Instructions for image analysis
+  - `image`: _(File)_ Image file
+  - `prompt`: _(Text, optional)_ Instructions for image analysis
 
 ### 3. Document Analysis
+
 - **Endpoint:** `POST /generate-from-document`
 - **Content-Type:** `multipart/form-data`
 - **Form Data:**
-  - `document` or `file`: *(File)* PDF, TXT, DOCX, etc.
-  - `prompt`: *(Text, optional)* Instructions for document processing
+  - `document` or `file`: _(File)_ PDF, TXT, DOCX, etc. Send exactly one field.
+  - `prompt`: _(Text, optional)_ Instructions for document processing
 
 ### 4. Audio Processing
+
 - **Endpoint:** `POST /generate-from-audio`
 - **Content-Type:** `multipart/form-data`
 - **Form Data:**
-  - `audio` or `file`: *(File)* MP3, WAV, OGG, FLAC, AAC, M4A, etc.
-  - `prompt`: *(Text, optional)* Transcription or analysis instructions
+  - `audio` or `file`: _(File)_ MP3, WAV, OGG, FLAC, AAC, M4A, etc. Send exactly one field; max 20 MB.
+  - `prompt`: _(Text, optional)_ Transcription or analysis instructions
 
 ---
 
 ## 🛡️ Response Format Standard
 
 ### Success (HTTP 2xx)
+
 ```json
 {
   "success": true,
   "message": "Text generated successfully",
   "data": {
-    "text": "Generated AI output string..."
+    "text": "Generated AI output string...",
+    "interactionId": "int_abc123 (null jika store=false)"
   }
 }
 ```
 
 ### Error (HTTP 4xx / 5xx)
+
 ```json
 {
   "success": false,
