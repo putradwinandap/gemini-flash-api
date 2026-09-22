@@ -3,16 +3,25 @@ import { handleGenerateFromDocument } from '../controllers/documentController.js
 import { uploadDocument } from '../middlewares/uploadMiddleware.js';
 import { validateRequest } from '../middlewares/validateRequest.js';
 import { generateFromDocumentSchema } from '../schemas/documentSchema.js';
+import { AppError } from '../utils/AppError.js';
 
 const router = Router();
 
-const documentUploadHandler = (req, res, next) => {
-  uploadDocument.single('document')(req, res, (err) => {
+export const documentUploadHandler = (req, res, next) => {
+  uploadDocument.fields([
+    { name: 'document', maxCount: 1 },
+    { name: 'file', maxCount: 1 },
+  ])(req, res, (err) => {
     if (err) return next(err);
-    if (!req.file) {
-      return uploadDocument.single('file')(req, res, next);
+    const documentFile = req.files?.document?.[0];
+    const genericFile = req.files?.file?.[0];
+
+    if (documentFile && genericFile) {
+      return next(new AppError('Send only one document file', 400, 'VALIDATION_ERROR'));
     }
-    next();
+
+    req.file = documentFile || genericFile;
+    return next();
   });
 };
 

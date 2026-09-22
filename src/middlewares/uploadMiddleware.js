@@ -1,9 +1,10 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { AppError } from '../utils/AppError.js';
 
-const uploadDir = 'uploads/';
+const uploadDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -41,7 +42,17 @@ const documentFileFilter = (req, file, cb) => {
     'text/rtf',
   ];
 
-  const allowedExtensions = ['.pdf', '.txt', '.docx', '.doc', '.html', '.csv', '.md', '.json', '.rtf'];
+  const allowedExtensions = [
+    '.pdf',
+    '.txt',
+    '.docx',
+    '.doc',
+    '.html',
+    '.csv',
+    '.md',
+    '.json',
+    '.rtf',
+  ];
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (
@@ -95,7 +106,17 @@ const audioFileFilter = (req, file, cb) => {
     'audio/webm',
   ];
 
-  const allowedExtensions = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a', '.mp4', '.webm', '.wma'];
+  const allowedExtensions = [
+    '.mp3',
+    '.wav',
+    '.ogg',
+    '.flac',
+    '.aac',
+    '.m4a',
+    '.mp4',
+    '.webm',
+    '.wma',
+  ];
   const ext = path.extname(file.originalname).toLowerCase();
 
   if (
@@ -120,7 +141,6 @@ export const uploadAudio = multer({
   storage,
   fileFilter: audioFileFilter,
   limits: {
-    fileSize: 50 * 1024 * 1024,
+    fileSize: 20 * 1024 * 1024,
   },
 });
-
