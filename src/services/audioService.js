@@ -1,44 +1,13 @@
-import fs from 'fs/promises';
-import { ai } from '../config/gemini.js';
-import { AppError } from '../utils/AppError.js';
-import { buildGenerationConfig } from '../utils/generationConfig.js';
+import { generateFromMedia } from '../utils/multimodalHelper.js';
 
 export const generateFromAudio = async ({ audioPath, mimeType, prompt }, config = {}) => {
-  try {
-    const fileBuffer = await fs.readFile(audioPath);
-    const base64Data = fileBuffer.toString('base64');
-
-    const audioPart = {
-      inlineData: {
-        data: base64Data,
-        mimeType: mimeType || 'audio/mp3',
-      },
-    };
-
-    const promptText =
-      prompt && prompt.trim() !== ''
-        ? prompt
-        : 'Tolong berikan transkripsi dan analisis lengkap dari file audio ini.';
-
-    const contents = [promptText, audioPart];
-    const generationPayload = buildGenerationConfig(config);
-
-    const response = await ai.models.generateContent({
-      ...generationPayload,
-      contents,
-    });
-
-    if (!response || !response.text) {
-      throw new Error('Empty response received from Gemini model');
-    }
-
-    return response.text;
-  } catch (error) {
-    if (error instanceof AppError) throw error;
-    throw new AppError(
-      `Failed to generate text from audio using Gemini API: ${error.message}`,
-      500,
-      'GEMINI_ERROR'
-    );
-  }
+  return generateFromMedia({
+    filePath: audioPath,
+    mimeType: mimeType || 'audio/mp3',
+    mediaType: 'audio',
+    prompt,
+    defaultPrompt: 'Tolong berikan transkripsi dan analisis lengkap dari file audio ini.',
+    errorContext: 'audio generation',
+    config,
+  });
 };

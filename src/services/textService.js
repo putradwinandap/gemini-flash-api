@@ -1,27 +1,24 @@
 import { ai } from '../config/gemini.js';
 import { AppError } from '../utils/AppError.js';
 import { buildGenerationConfig } from '../utils/generationConfig.js';
+import { extractOutputText, validateMemoryOptions } from '../utils/interactionHelper.js';
 
 export const generateText = async (prompt, config = {}) => {
   try {
-    const generationPayload = buildGenerationConfig(config);
+    const interactionPayload = buildGenerationConfig(config);
+    validateMemoryOptions(interactionPayload);
 
-    const response = await ai.models.generateContent({
-      ...generationPayload,
-      contents: prompt,
+    const interaction = await ai.interactions.create({
+      ...interactionPayload,
+      input: prompt,
     });
 
-    if (!response || !response.text) {
-      throw new Error('Empty response received from Gemini model');
-    }
+    const text = extractOutputText(interaction);
 
-    return response.text;
+    return { text, interactionId: interaction.id ?? null };
   } catch (error) {
     if (error instanceof AppError) throw error;
-    throw new AppError(
-      `Failed to generate text from Gemini API: ${error.message}`,
-      500,
-      'GEMINI_ERROR'
-    );
+    console.error('Text generation failed:', error);
+    throw new AppError('Failed to process text generation.', 500, 'GEMINI_ERROR');
   }
 };
